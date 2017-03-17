@@ -142,3 +142,22 @@ describe('Shopping List', function() {
       });
   });
 });
+
+
+DOING TESTS FOR /RECIPES
+describe('testing recipes', function () {
+  before (function () {
+    return runServer();
+  })
+  after (function () {
+    return closeServer();
+  });
+  it('should get recipes when you hit GET', function (){
+    return chai.request(app)
+      .get('/recipes')
+      .then(function(res) {
+        res.should.have.status(200);
+        // res.should.have.
+      })
+  });
+});
