@@ -144,20 +144,73 @@ describe('Shopping List', function() {
 });
 
 
-DOING TESTS FOR /RECIPES
+// DOING TESTS FOR /RECIPES
 describe('testing recipes', function () {
   before (function () {
     return runServer();
-  })
+  });
   after (function () {
     return closeServer();
   });
-  it('should get recipes when you hit GET', function (){
+  it('should list recipes when you hit GET', function (){
     return chai.request(app)
       .get('/recipes')
       .then(function(res) {
         res.should.have.status(200);
-        // res.should.have.
+        res.should.be.an('object');
+        res.should.be.json;
+        // res.should.not.throw(Error);
+        res.body.length.should.be.above(1);
+        res.body.should.be.an('array');
+        res.body.forEach(function(item) {
+          item.should.have.all.keys('name', 'id', 'ingredients');
+        });
+      });
+  });
+  it ('should add new item on post', function () {
+    const postItem = {
+      'name': 'coffee',
+      'ingredients': ['beans', 'water']
+    };
+    return chai.request(app)
+      .post('/recipes')
+      .send(postItem)
+      .then(function (res) {
+        res.should.have.status(201);
+        res.should.be.an('object');
+        res.should.be.json;
+        res.body.should.include.keys('id', 'name', 'ingredients');
+      });
+  })
+  it ('should update an item', function () {
+    const putItem = {
+      'name': 'coffee',
+      'ingredients': ['beans', 'water']
+    };
+    return chai.request(app)
+      .get('/recipes')
+      .then(function(res) {
+        putItem.id = res.body[0].id;
+        return chai.request(app)
+          .put(`/recipes/${putItem.id}`)
+          .send(putItem)
+      })
+      .then(function(res) {
+        res.should.be.an('object');
+        res.should.be.json;
+        res.body.should.include.keys('id', 'name', 'ingredients');
+        res.body.should.deep.equal(putItem);
+      })
+  });
+  it ('should delete an item', function () {
+    return chai.request(app)
+      .get('/recipes')
+      .then(function(res) {
+        return chai.request(app)
+          .delete(`/shopping-list/${res.body[0].id}`);
+      })
+      .then(function(res) {
+        res.should.have.status(204);
       })
   });
 });
